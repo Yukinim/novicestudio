@@ -23,10 +23,27 @@ public class PlayerGFXMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetButtonDown("Jump") && !animator.GetBool("isJumping"))
+        if(Input.GetAxisRaw("Horizontal") == 0)
+        {
+            //Moving
+            animator.SetBool("IsMoving", false);
+        }
+        else if(Input.GetAxisRaw("Horizontal") < 0)
+        {
+            //Left Flip
+            animator.SetInteger("Direction", -1);
+            animator.SetBool("IsMoving", true);
+        }else if(Input.GetAxisRaw("Horizontal") > 0)
+        {
+            //Right Flip
+            animator.SetInteger("Direction", 1);
+            animator.SetBool("IsMoving", true);
+        }
+
+        if (Input.GetButtonDown("Jump") && !animator.GetBool("IsJumping"))
         {
             isJumping = true;
-            animator.SetBool("isJumping", true);
+            animator.SetBool("IsJumping", true);
             animator.SetTrigger("doJumping");
         }
 	}
@@ -44,13 +61,9 @@ public class PlayerGFXMovement : MonoBehaviour {
         if(Input.GetAxisRaw("Horizontal") < 0)
         {
             moveVelocity = Vector3.left;
-
-            transform.localScale = new Vector3(-1, 1, 1);
         }else if(Input.GetAxisRaw("Horizontal") > 0)
         {
             moveVelocity = Vector3.right;
-
-            transform.localScale = new Vector3(1, 1, 1);
         }
 
         transform.position += moveVelocity * movePower * Time.deltaTime;
@@ -66,4 +79,20 @@ public class PlayerGFXMovement : MonoBehaviour {
 
         isJumping = false;
     }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+       // Debug.Log("Attach : " + other.gameObject.layer);
+
+        if(other.gameObject.layer == 8 && rigid.velocity.y < 0)
+        {
+            animator.SetBool("IsJumping", false);
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+       // Debug.Log("Detach : " + other.gameObject.layer);
+    }
+
 }
